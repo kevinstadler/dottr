@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>dot.tr</title>
+<style>
+body {
+  background-color: #F3F3F3;
+}
+.dots {
+  display: block;
+  margin: auto;
+  width: 500px;
+  height: 350px;
+  padding: 40px;
+}
+canvas {
+  width: 100%;
+  height: 100%;
+}
+</style>
+<script src="infinite-scroll.pkgd.min.js"></script>
+</head>
+<body>
+<div class="content">
+</div>
+<script>
+var content = document.querySelector('.content')
+var infScroll = new InfiniteScroll( content, {
+  path: '{{#}}',
+  loadOnScroll: false,
+  history: false
+});
+
+function drawDots(canvas) {
+  var rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width;
+  canvas.height = rect.height;
+  var context = canvas.getContext("2d");
+  context.fillStyle = '#fff';
+  context.fillRect(0, 0, canvas.width, canvas.height);
+  for (var i = 0; i < 100; i++) {
+    context.beginPath();
+    var x = Math.floor(Math.random() * canvas.width);
+    var y = Math.floor(Math.random() * canvas.height);
+    context.arc(x, y, Math.floor(5 + Math.random() * 20), 0, 2*Math.PI);
+    context.fillStyle ="#"+((1<<24)*Math.random()|0).toString(16);
+    context.fill();
+  }
+}
+
+function appendDots() {
+  var node = document.createElement("div");
+  node.className = "dots";
+  var canvas = document.createElement("canvas");
+  node.appendChild(canvas);
+  content.appendChild(node);
+  drawDots(canvas);
+}
+
+infScroll.on('scrollThreshold', appendDots);
+
+for (var i = 0; i < 10; i++) {
+  appendDots();
+}
+</script>
+</body>
+</html>
