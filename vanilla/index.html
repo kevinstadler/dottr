@@ -9,10 +9,8 @@
 <style>
 body {
   background-color: #F3F3F3;
-  font-family: sans-serif;
-  font-size: 11pt;
 }
-article {
+.dots {
   display: block;
   margin: auto;
   width: fit-content;
@@ -21,32 +19,21 @@ article {
 canvas {
   width: 500px;
   height: 350px;
-  margin: auto;
-  display: block;
-}
-time {
-  display: none;
 }
 </style>
 <script src="https://unpkg.com/infinite-scroll@3/dist/infinite-scroll.pkgd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/seedrandom/2.4.3/seedrandom.min.js"></script>
 </head>
 <body>
 <div class="content">
-<article id="newposts" style="display: none;"><a href="#" id="loadnewposts"></a></article>
 </div>
 <script>
 var content = document.querySelector('.content')
-var infScroll = new InfiniteScroll(content, {
+var infScroll = new InfiniteScroll( content, {
   path: '{{#}}',
   loadOnScroll: false,
   scrollThreshold: 3000,
   history: false
 });
-
-function randInt(ceiling) {
-  return Math.floor(Math.random() * ceiling);
-}
 
 function drawDots(canvas) {
   var rect = canvas.getBoundingClientRect();
@@ -55,38 +42,23 @@ function drawDots(canvas) {
   var context = canvas.getContext("2d");
   context.fillStyle = '#fff';
   context.fillRect(0, 0, canvas.width, canvas.height);
-  var n = 25 + randInt(100);
-  for (var i = 0; i < n; i++) {
+  for (var i = 0; i < 100; i++) {
     context.beginPath();
-    var radius = 5 + randInt(20);
-    var x = radius + randInt(canvas.width - 2*radius);
-    var y = radius + randInt(canvas.height - 2*radius);
-    context.arc(x, y, radius, 0, 2*Math.PI);
+    var x = Math.floor(Math.random() * canvas.width);
+    var y = Math.floor(Math.random() * canvas.height);
+    context.arc(x, y, Math.floor(5 + Math.random() * 20), 0, 2*Math.PI);
     context.fillStyle ="#"+((1<<24)*Math.random()|0).toString(16);
     context.fill();
   }
 }
 
-var newposts = document.getElementById("newposts");
-var loadnewposts = document.getElementById("loadnewposts");
-
 function appendDots() {
   for (var i = 0; i < 10; i++) {
-    var timestamp = new Date();
-
-    var node = document.createElement("article");
+    var node = document.createElement("div");
     node.className = "dots";
-
-    var time = document.createElement("time");
-    time.setAttribute("datetime", timestamp);
-
-    time.appendChild(document.createTextNode(timestamp.toLocaleString()));
-    node.appendChild(time);
-
     var canvas = document.createElement("canvas");
     node.appendChild(canvas);
     content.appendChild(node);
-    Math.seedrandom(timestamp.getTime());
     drawDots(canvas);
   }
 }
@@ -98,31 +70,8 @@ infScroll.on('scrollThreshold', appendDots);
 (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
   m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
 })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-
 ga('create', 'UA-96498670-1', 'auto');
 ga('send', 'pageview', { 'page': location.pathname + location.search + location.hash});
-
-var newpostlist = [];
-
-function update() {
-//  newposts.style.display = "block";
-  loadnewposts.textContent = "Load " + newpostlist.length + " new posts";
-
-  var times = document.getElementsByTagName("time");
-  for (var i = 0; i < times.length; i++) {
-    times[i].textContent = new Date(times[i].getAttribute("dateTime")).toLocaleString();
-  }
-}
-setInterval(update, 60000);
-
-newposts.onclick = function() {
-  return false;
-}
-
-function star(id) {
-  // https://github.com/js-cookie/js-cookie
-}
-
 </script>
 </body>
 </html>
