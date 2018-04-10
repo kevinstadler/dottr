@@ -30,10 +30,28 @@ time {
 </style>
 <script src="https://unpkg.com/infinite-scroll@3/dist/infinite-scroll.pkgd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/seedrandom/2.4.3/seedrandom.min.js"></script>
+<!--script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script-->
 </head>
 <body>
+<script>window.twttr = (function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0],
+    t = window.twttr || {};
+  if (d.getElementById(id)) return t;
+  js = d.createElement(s);
+  js.id = id;
+  js.src = "https://platform.twitter.com/widgets.js";
+  fjs.parentNode.insertBefore(js, fjs);
+
+  t._e = [];
+  t.ready = function(f) {
+    t._e.push(f);
+  };
+
+  return t;
+}(document, "script", "twitter-wjs"));</script>
+
 <div class="content">
-<article id="newposts" style="display: none;"><a href="#" id="loadnewposts"></a></article>
+<article id="newposts" style="display: none;"><h1><a href="#" id="loadnewposts"></a></h1></article>
 </div>
 <script>
 var content = document.querySelector('.content')
@@ -62,7 +80,7 @@ function drawDots(canvas) {
     var x = radius + randInt(canvas.width - 2*radius);
     var y = radius + randInt(canvas.height - 2*radius);
     context.arc(x, y, radius, 0, 2*Math.PI);
-    context.fillStyle ="#"+((1<<24)*Math.random()|0).toString(16);
+    context.fillStyle = "#"+((1<<24)*Math.random()|0).toString(16);
     context.fill();
   }
 }
@@ -70,8 +88,15 @@ function drawDots(canvas) {
 var newposts = document.getElementById("newposts");
 var loadnewposts = document.getElementById("loadnewposts");
 
+twttr.ready(function() {
+ window.twttr.widgets.createShareButton('/', newposts, { text: 'Hello World' });
+});
+
+var inc = 10;
+var nPosts = -inc;
+
 function appendDots() {
-  for (var i = 0; i < 10; i++) {
+  for (var i = 0; i < inc; i++) {
     var timestamp = new Date();
 
     var node = document.createElement("article");
@@ -89,10 +114,10 @@ function appendDots() {
     Math.seedrandom(timestamp.getTime());
     drawDots(canvas);
   }
+  nPosts += inc;
 }
 
 appendDots();
-infScroll.on('scrollThreshold', appendDots);
 
 (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
 (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -101,6 +126,12 @@ infScroll.on('scrollThreshold', appendDots);
 
 ga('create', 'UA-96498670-1', 'auto');
 ga('send', 'pageview', { 'page': location.pathname + location.search + location.hash});
+
+infScroll.on('scrollThreshold', function() {
+  appendDots();
+  ga("set", "page", location.pathname + nPosts + location.search + location.hash);
+  ga("send", "pageview");
+});
 
 var newpostlist = [];
 
@@ -116,6 +147,7 @@ function update() {
 setInterval(update, 60000);
 
 newposts.onclick = function() {
+  newposts.style.display = "none";
   return false;
 }
 
