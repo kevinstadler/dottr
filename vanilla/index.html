@@ -1,6 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-117459097-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'UA-117459097-1');
+</script>
 <meta charset="UTF-8">
 <link rel="schema.dcterms" href="http://purl.org/dc/terms/">
 <meta name="dcterms.rightsHolder" content="Kevin Stadler">
@@ -52,8 +59,11 @@ function drawDots(canvas) {
   }
 }
 
+var inc = 10;
+var nPosts = -inc;
+
 function appendDots() {
-  for (var i = 0; i < 10; i++) {
+  for (var i = 0; i < inc; i++) {
     var node = document.createElement("div");
     node.className = "dots";
     var canvas = document.createElement("canvas");
@@ -61,10 +71,14 @@ function appendDots() {
     content.appendChild(node);
     drawDots(canvas);
   }
+  nPosts += inc;
 }
 
 appendDots();
-infScroll.on('scrollThreshold', appendDots);
+infScroll.on('scrollThreshold', function() {
+  appendDots();
+  gtag("event", "scroll", {"value": nPosts, "metric1": nPosts});
+});
 
 (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
 (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
