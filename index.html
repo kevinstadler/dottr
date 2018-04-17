@@ -103,24 +103,29 @@ twttr.ready(function() {
 var inc = 10;
 var nPosts = -inc;
 
+function appendPost(timestamp) {
+  var node = document.createElement("article");
+  node.className = "dots";
+  node.id = timestamp.getTime();
+
+  var time = document.createElement("time");
+  time.setAttribute("datetime", timestamp);
+
+  time.appendChild(document.createTextNode(timestamp.toLocaleString()));
+  node.appendChild(time);
+
+  var canvas = document.createElement("canvas");
+  node.appendChild(canvas);
+  content.appendChild(node);
+  Math.seedrandom(timestamp.getTime());
+  drawDots(canvas);
+}
+
 function appendDots() {
+  var timestamp = new Date();
   for (var i = 0; i < inc; i++) {
-    var timestamp = new Date();
-
-    var node = document.createElement("article");
-    node.className = "dots";
-
-    var time = document.createElement("time");
-    time.setAttribute("datetime", timestamp);
-
-    time.appendChild(document.createTextNode(timestamp.toLocaleString()));
-    node.appendChild(time);
-
-    var canvas = document.createElement("canvas");
-    node.appendChild(canvas);
-    content.appendChild(node);
-    Math.seedrandom(timestamp.getTime());
-    drawDots(canvas);
+    appendPost(timestamp);
+    timestamp.setTime(timestamp.getTime()+1);
   }
   nPosts += inc;
 }
