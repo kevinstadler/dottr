@@ -32,14 +32,25 @@ canvas {
   display: block;
 }
 time {
-  display: none;
+}
+button {
+  font-size: 12pt;
+}
+.menu {
+  text-align: right;
+}
+.star::after {
+  content: "☆";
+}
+.starred::after {
+  content: "★";
 }
 </style>
 <script src="https://unpkg.com/infinite-scroll@3/dist/infinite-scroll.pkgd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/seedrandom/2.4.3/seedrandom.min.js"></script>
-<!--script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script-->
+<script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
 </head>
-<body>
+<body onbeforeunload="setCookies()">
 
 <script>window.twttr = (function(d, s, id) {
   var js, fjs = d.getElementsByTagName(s)[0],
@@ -101,33 +112,59 @@ twttr.ready(function() {
 });
 
 var inc = 10;
-var nPosts = -inc;
+var nPosts = 0;
+
+var posts = Cookies.getJSON('posts') || [];
+var stars = Cookies.getJSON('stars') || [];
+
+function addInDiv(box, content) {
+  var div = document.createElement("div");
+  div.appendChild(content);
+  box.appendChild(div);
+  return(div);
+}
 
 function appendPost(timestamp) {
   var node = document.createElement("article");
   node.className = "dots";
   node.id = timestamp.getTime();
 
+  var canvas = document.createElement("canvas");
+  addInDiv(node, canvas);
+  content.appendChild(node);
+  Math.seedrandom(timestamp.getTime());
+  drawDots(canvas);
+
   var time = document.createElement("time");
   time.setAttribute("datetime", timestamp);
 
   time.appendChild(document.createTextNode(timestamp.toLocaleString()));
-  node.appendChild(time);
-
-  var canvas = document.createElement("canvas");
-  node.appendChild(canvas);
-  content.appendChild(node);
-  Math.seedrandom(timestamp.getTime());
-  drawDots(canvas);
+  var menu = addInDiv(node, time);
+  menu.className = "menu";
+  var st = document.createElement("button");
+  st.className = "star";
+  if (stars.includes(timestamp.getTime())) {
+    st.className.toggle("starred");
+  }
+  st.id = "star" + node.id;
+  st.addEventListener("click", function(e) {
+    star(node.id);
+  }, false);
+  menu.appendChild(st);
 }
 
 function appendDots() {
-  var timestamp = new Date();
-  for (var i = 0; i < inc; i++) {
-    appendPost(timestamp);
-    timestamp.setTime(timestamp.getTime()+1);
+  if (nPosts >= posts.length) {
+    var timestamp = new Date();
+    for (var i = 0; i < inc; i++) {
+      posts.unshift(timestamp.getTime());
+      timestamp.setTime(timestamp.getTime()+1);
+    }
   }
-  nPosts += inc;
+  for (var i = 0; i < inc; i++) {
+    appendPost(new Date(posts[nPosts]));
+    nPosts += 1;
+  }
 }
 
 appendDots();
@@ -156,7 +193,19 @@ newposts.onclick = function() {
 }
 
 function star(id) {
-  // https://github.com/js-cookie/js-cookie
+  var post = document.getElementById("star" + id);
+  if (post.classList.toggle("starred")) {
+    stars.push(id);
+  } else {
+    var i = stars.indexOf(id);
+    stars.splice(i, i+1);
+  }
+}
+
+function setCookies() {
+  Cookies.set('posts', posts, { expires: 3650 });
+  Cookies.set('stars', stars, { expires: 3650 });
+  return;
 }
 
 </script>
